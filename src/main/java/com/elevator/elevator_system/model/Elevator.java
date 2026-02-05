@@ -155,12 +155,4 @@ public class Elevator {
             destinationFloors.remove(target);
         }
     }
-
-
-
-
-
-
-
-
 }
