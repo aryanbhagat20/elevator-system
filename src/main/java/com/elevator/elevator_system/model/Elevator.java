@@ -155,4 +155,14 @@ public class Elevator {
             destinationFloors.remove(target);
         }
     }
+
+    // Check if elevator is idle (not moving, doors closed, and in normal mode)
+    public boolean isIdle() {
+        return movementState == MovementState.IDLE
+                && doorState == DoorState.CLOSED
+                && mode == ElevatorMode.NORMAL;
+    }
+
+
+
 }

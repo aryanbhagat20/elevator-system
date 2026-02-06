@@ -23,6 +23,38 @@ public class BasicScheduler implements Scheduler {
 
     @Override
     public void step() {
-        // Logic will come in next phase
+        if (pendingRequests.isEmpty()) {
+            return;
+        }
+
+        ExternalRequest request = pendingRequests.get(0);
+
+        Elevator bestElevator = null;
+        int minDistance = Integer.MAX_VALUE;
+
+        for (Elevator elevator : elevators) {
+            if (!elevator.isIdle()) {
+                continue;
+            }
+
+            int distance = Math.abs(
+                    elevator.getCurrentFloor() - request.getFloor()
+            );
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                bestElevator = elevator;
+            }
+        }
+
+        if (bestElevator != null) {
+            bestElevator.addDestination(request.getFloor());
+            pendingRequests.remove(request);
+        }
+
+        // Let all elevators take one step
+        for (Elevator elevator : elevators) {
+            elevator.step();
+        }
     }
 }
