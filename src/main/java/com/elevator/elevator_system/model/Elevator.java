@@ -1,6 +1,7 @@
 package com.elevator.elevator_system.model;
 
 import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Set;
 
 
@@ -13,7 +14,8 @@ public class Elevator {
     private DoorState doorState;
     private ElevatorMode mode;
 
-    private Set<Integer> destinationFloors = new HashSet<>();
+    // Using TreeSet to keep destination floors sorted for easier nearest floor calculation
+    private TreeSet<Integer> destinationFloors = new TreeSet<>();
 
     // Constructor
     public Elevator(int elevatorId, int startFloor) {
@@ -122,35 +124,52 @@ public class Elevator {
         return destinationFloors.add(floor);
     }
 
-    // Simple logic to get the nearest destination floor
-    private Integer getNearestDestination() {
-        return destinationFloors.stream()
-                .min((a, b) -> Integer.compare(
-                        Math.abs(a - currentFloor),
-                        Math.abs(b - currentFloor)
-                ))
-                .orElse(null);
+    // Get the next destination floor based on current movement state and direction
+    private Integer getNextDestination() {
+
+        if (destinationFloors.isEmpty()) {
+            return null;
+        }
+
+        if (movementState == MovementState.MOVING_UP || movementState == MovementState.IDLE) {
+            Integer nextUp = destinationFloors.ceiling(currentFloor);
+            if (nextUp != null) return nextUp;
+            return destinationFloors.first(); // reverse later
+        }
+
+        if (movementState == MovementState.MOVING_DOWN) {
+            Integer nextDown = destinationFloors.floor(currentFloor);
+            if (nextDown != null) return nextDown;
+            return destinationFloors.last(); // reverse later
+        }
+
+        return null;
     }
 
-    // Perform a step towards the nearest destination (Either move up, down, or open door)
+    // Elevator step function to be called by the scheduler on each tick
     public void step() {
-        // If door is open, close it first
+
         if (doorState == DoorState.OPEN) {
             closeDoor();
             return;
         }
 
-        Integer target = getNearestDestination();
+        Integer target = getNextDestination();
 
         if (target == null) {
+            movementState = MovementState.IDLE;
             return;
         }
 
         if (currentFloor < target) {
+            movementState = MovementState.MOVING_UP;
             moveUp();
-        } else if (currentFloor > target) {
+        }
+        else if (currentFloor > target) {
+            movementState = MovementState.MOVING_DOWN;
             moveDown();
-        } else {
+        }
+        else {
             openDoor();
             destinationFloors.remove(target);
         }
@@ -162,7 +181,4 @@ public class Elevator {
                 && doorState == DoorState.CLOSED
                 && mode == ElevatorMode.NORMAL;
     }
-
-
-
 }
