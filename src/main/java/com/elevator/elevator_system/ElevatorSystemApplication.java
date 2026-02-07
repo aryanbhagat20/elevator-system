@@ -23,7 +23,6 @@ public class ElevatorSystemApplication {
 
 			Scheduler scheduler = new BasicScheduler();
 
-			// 🚨 CREATE 2 ELEVATORS
 			Elevator elevator1 = new Elevator(1, 0); // Elevator 1 at floor 0
 			Elevator elevator2 = new Elevator(2, 5); // Elevator 2 at floor 5
 
