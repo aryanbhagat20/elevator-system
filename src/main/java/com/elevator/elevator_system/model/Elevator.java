@@ -148,6 +148,22 @@ public class Elevator {
 
     // Elevator step function to be called by the scheduler on each tick
     public void step() {
+        // In emergency mode, the elevator should move to the nearest safe floor (e.g., ground floor) and open doors
+        if (mode == ElevatorMode.EMERGENCY) {
+
+            if (doorState == DoorState.OPEN) {
+                return; // stay open
+            }
+
+            if (currentFloor > 0) {
+                movementState = MovementState.MOVING_DOWN;
+                moveDown();
+            } else {
+                movementState = MovementState.IDLE;
+                openDoor(); // safe floor reached
+            }
+            return;
+        }
 
         if (doorState == DoorState.OPEN) {
             closeDoor();
@@ -181,4 +197,23 @@ public class Elevator {
                 && doorState == DoorState.CLOSED
                 && mode == ElevatorMode.NORMAL;
     }
+
+    // Enter maintenance mode, which disables the elevator and clears all pending destinations
+    public void enterMaintenance() {
+        mode = ElevatorMode.MAINTENANCE;
+        destinationFloors.clear();
+        movementState = MovementState.IDLE;
+    }
+
+    // Exit maintenance mode and return to normal operation
+    public void exitMaintenance() {
+        mode = ElevatorMode.NORMAL;
+    }
+
+    // Trigger emergency mode, which disables the elevator and clears all pending destinations
+    public void triggerEmergency() {
+        mode = ElevatorMode.EMERGENCY;
+        destinationFloors.clear();
+    }
+
 }
