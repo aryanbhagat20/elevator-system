@@ -10,6 +10,9 @@ public class BasicScheduler implements Scheduler {
     private final List<Elevator> elevators = new ArrayList<>();
     private final List<ExternalRequest> pendingRequests = new ArrayList<>();
 
+    private static final int STARVATION_THRESHOLD = 5;
+
+
     @Override
     public void registerElevator(Elevator elevator) {
         elevators.add(elevator);
@@ -23,6 +26,9 @@ public class BasicScheduler implements Scheduler {
     // This method is called on every system tick to process pending requests and move elevators
     @Override
     public void step() {
+        for (ExternalRequest request : pendingRequests) {
+            request.incrementWaitTime();
+        }
 
         if (!pendingRequests.isEmpty()) {
 
@@ -41,33 +47,39 @@ public class BasicScheduler implements Scheduler {
                 int requestFloor = request.getFloor();
 
                 boolean canServe = false;
-
-                // Rule 1: Idle elevator can serve any request
-                if (elevator.isIdle()) {
+                // STARVATION OVERRIDE
+                if (request.getWaitTime() > STARVATION_THRESHOLD && elevator.isIdle()) {
                     canServe = true;
                 }
 
-                // Rule 2: Moving UP
-                else if (elevator.getMovementState() == MovementState.MOVING_UP) {
-                    canServe =
-                            request.getDirection() == Direction.UP &&
-                                    requestFloor >= elevatorFloor;
-                }
+                if(!canServe) {
+                    // Rule 1: Idle elevator can serve any request
+                    if (elevator.isIdle()) {
+                        canServe = true;
+                    }
 
-                // Rule 3: Moving DOWN
-                else if (elevator.getMovementState() == MovementState.MOVING_DOWN) {
-                    canServe =
-                            request.getDirection() == Direction.DOWN &&
-                                    requestFloor <= elevatorFloor;
-                }
+                    // Rule 2: Moving UP
+                    else if (elevator.getMovementState() == MovementState.MOVING_UP) {
+                        canServe =
+                                request.getDirection() == Direction.UP &&
+                                        requestFloor >= elevatorFloor;
+                    }
 
-                if (!canServe) continue;
+                    // Rule 3: Moving DOWN
+                    else if (elevator.getMovementState() == MovementState.MOVING_DOWN) {
+                        canServe =
+                                request.getDirection() == Direction.DOWN &&
+                                        requestFloor <= elevatorFloor;
+                    }
 
-                int distance = Math.abs(elevatorFloor - requestFloor);
+                    if (!canServe) continue;
 
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    bestElevator = elevator;
+                    int distance = Math.abs(elevatorFloor - requestFloor);
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        bestElevator = elevator;
+                    }
                 }
             }
 
