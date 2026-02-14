@@ -4,6 +4,8 @@ import com.elevator.elevator_system.model.Direction;
 import com.elevator.elevator_system.service.ElevatorSystemService;
 import org.springframework.web.bind.annotation.*;
 import com.elevator.elevator_system.dto.ElevatorStatusDTO;
+import com.elevator.elevator_system.dto.CallElevatorRequestDTO;
+import jakarta.validation.Valid;
 
 
 import java.util.List;
@@ -20,10 +22,11 @@ public class ElevatorController {
 
     // Call elevator from floor
     @PostMapping("/call")
-    public String callElevator(@RequestParam int floor,
-                               @RequestParam Direction direction) {
-
-        elevatorService.callElevator(floor, direction);
+    public String callElevator(@Valid @RequestBody CallElevatorRequestDTO request) {
+        elevatorService.callElevator(
+                request.getFloor(),
+                Direction.valueOf(request.getDirection())
+        );
         return "Elevator requested successfully";
     }
 
