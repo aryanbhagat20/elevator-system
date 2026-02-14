@@ -1,9 +1,10 @@
 package com.elevator.elevator_system.controller;
 
 import com.elevator.elevator_system.model.Direction;
-import com.elevator.elevator_system.model.Elevator;
 import com.elevator.elevator_system.service.ElevatorSystemService;
 import org.springframework.web.bind.annotation.*;
+import com.elevator.elevator_system.dto.ElevatorStatusDTO;
+
 
 import java.util.List;
 
@@ -28,8 +29,8 @@ public class ElevatorController {
 
     // Get elevator status
     @GetMapping("/status")
-    public List<Elevator> getStatus() {
-        return elevatorService.getElevators();
+    public List<ElevatorStatusDTO> getStatus() {
+        return elevatorService.getElevatorStatus();
     }
 
     // Trigger emergency
