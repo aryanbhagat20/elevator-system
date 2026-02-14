@@ -26,13 +26,6 @@ public class ElevatorController {
         return "Elevator requested successfully";
     }
 
-    // Step system manually (simulation tick)
-    @PostMapping("/step")
-    public String stepSystem() {
-        elevatorService.stepSystem();
-        return "System advanced by one step";
-    }
-
     // Get elevator status
     @GetMapping("/status")
     public List<Elevator> getStatus() {
