@@ -72,4 +72,14 @@ public class ElevatorSystemService {
                 .collect(Collectors.toList());
     }
 
+    // This method allows us to directly send an elevator to a specific floor, which can be useful for testing or special scenarios
+    public void sendElevatorToFloor(int elevatorId, int floor) {
+
+        elevators.stream()
+                .filter(e -> e.getElevatorId() == elevatorId)
+                .findFirst()
+                .ifPresent(e -> e.addDestination(floor));
+    }
+
+
 }
