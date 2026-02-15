@@ -51,7 +51,7 @@ public class Elevator {
 
     //Door operations 
     public boolean openDoor() {
-        if (mode != ElevatorMode.NORMAL) {
+        if (mode != ElevatorMode.NORMAL && mode != ElevatorMode.EMERGENCY) {
             return false;
         }
 
@@ -151,18 +151,32 @@ public class Elevator {
         // In emergency mode, the elevator should move to the nearest safe floor (e.g., ground floor) and open doors
         if (mode == ElevatorMode.EMERGENCY) {
 
-            if (doorState == DoorState.OPEN) {
-                return; // stay open
+            // Always close doors before movement
+            if (currentFloor > 0) {
+
+                if (doorState == DoorState.OPEN) {
+                    closeDoor();
+                    return;
+                }
+
+                movementState = MovementState.MOVING_DOWN;
+
+                // Force movement without using moveDown()
+                currentFloor--;
+
+                return;
             }
 
-            if (currentFloor > 0) {
-                movementState = MovementState.MOVING_DOWN;
-                moveDown();
-            } else {
+            // When reached ground floor
+            if (currentFloor == 0) {
                 movementState = MovementState.IDLE;
-                openDoor(); // safe floor reached
+
+                if (doorState != DoorState.OPEN) {
+                    openDoor();
+                }
+
+                return;
             }
-            return;
         }
 
         if (doorState == DoorState.OPEN) {
@@ -214,6 +228,21 @@ public class Elevator {
     public void triggerEmergency() {
         mode = ElevatorMode.EMERGENCY;
         destinationFloors.clear();
+    }
+
+    public void clearEmergency() {
+
+        if (this.mode == ElevatorMode.EMERGENCY) {
+
+            this.mode = ElevatorMode.NORMAL;
+
+            // Close door if open
+            if (this.doorState == DoorState.OPEN) {
+                this.doorState = DoorState.CLOSED;
+            }
+
+            this.movementState = MovementState.IDLE;
+        }
     }
 
 }

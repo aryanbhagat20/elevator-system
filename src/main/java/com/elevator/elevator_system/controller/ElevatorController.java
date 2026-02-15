@@ -54,4 +54,10 @@ public class ElevatorController {
                 ? "Elevator " + elevatorId + " in maintenance"
                 : "Elevator " + elevatorId + " back to normal";
     }
+
+    @PostMapping("/clearEmergency")
+    public void clearEmergency(@RequestParam int elevatorId) {
+        elevatorService.clearEmergency(elevatorId);
+    }
+
 }

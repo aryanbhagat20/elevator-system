@@ -81,5 +81,13 @@ public class ElevatorSystemService {
                 .ifPresent(e -> e.addDestination(floor));
     }
 
+    public void clearEmergency(int elevatorId) {
+
+        elevators.stream()
+                .filter(e -> e.getElevatorId() == elevatorId)
+                .findFirst()
+                .ifPresent(Elevator::clearEmergency);
+    }
+
 
 }
