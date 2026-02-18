@@ -60,4 +60,10 @@ public class ElevatorController {
         elevatorService.clearEmergency(elevatorId);
     }
 
+    // Health check endpoint
+    @GetMapping("/health")
+    public String health() {
+        return "ok";
+    }
+
 }
